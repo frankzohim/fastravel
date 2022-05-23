@@ -1,5 +1,12 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'dart:developer' as developer;
+import 'dart:io';
+import 'package:fast_travel/network_utils/api_fast_travel.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:fast_travel/pages/login_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'pages/splash_screen.dart';
 
@@ -9,7 +16,7 @@ void main() {
 
 class LoginUiApp extends StatelessWidget {
 
-  Color _primaryColor = HexColor('#290D62');
+  Color _primaryColor = HexColor('#DC54FE');
   Color _accentColor = HexColor('#8A02AE');
 
   // Design color
@@ -28,7 +35,7 @@ class LoginUiApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Fast Travel',
+      title: 'Flutter Login UI',
       theme: ThemeData(
         primaryColor: _primaryColor,
         accentColor: _accentColor,
@@ -40,6 +47,41 @@ class LoginUiApp extends StatelessWidget {
   }
 }
 
+class CheckAuth extends StatefulWidget {
+  @override
+  _CheckAuthState createState() => _CheckAuthState();
+}
 
+class _CheckAuthState extends State<CheckAuth> {
+  bool isAuth = false;
+  @override
+  void initState() {
+    _checkIfLoggedIn();
+    super.initState();
+  }
+
+  void _checkIfLoggedIn() async{
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var token = localStorage.getString('token');
+    print(token);
+    if(token != null){
+      setState(() {
+        isAuth = true;
+      });
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    Widget child;
+    if (isAuth) {
+      child =  SplashScreen(title: 'Fast Travel');
+    } else {
+      child = LoginPage();
+    }
+    return Scaffold(
+      body: child,
+    );
+  }
+}
 
 
