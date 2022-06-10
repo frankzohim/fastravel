@@ -14,9 +14,6 @@ import 'package:email_validator/email_validator.dart';
 import 'dart:developer';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'dart:developer';
-import 'dart:async';
-import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget{
@@ -87,7 +84,6 @@ class _LoginPageState extends State<LoginPage>{
                                     }
                                     if(EmailValidator.validate(value)){
                                       email = value;
-                                      log(email);
                                       return null;
                                     }
 
@@ -204,20 +200,21 @@ class _LoginPageState extends State<LoginPage>{
     };
 
     final response = await http.post(
-      Uri.parse('https://fastravel.stillforce.tech/oauth/token'),
+      Uri.parse('http://fastravel.stillforce.tech/oauth/token'),
       headers: {
         'Content-type' : 'application/json',
         'Accept' : 'application/json',
       },
       body: jsonEncode(data),
     );
-    //print(response);
+    print(response.body);
 
     if (response.statusCode == 200) {
       // If the server did return a 200 CREATED response,
       // then parse the JSON.
       //print(response.statusCode);
       //print(response.body);
+      log("Access Token ok");
       var JsonData = jsonDecode(response.body);
       String token = JsonData['access_token'];
 
@@ -228,7 +225,7 @@ class _LoginPageState extends State<LoginPage>{
 
       //launching a get request to have user information
       final userRequest = await http.get(
-        Uri.parse('https://fastravel.stillforce.tech/api/v1/user'),
+        Uri.parse('http://fastravel.stillforce.tech/api/v1/user'),
         headers: {
           'Content-type' : 'application/json',
           'Accept' : 'application/json',
@@ -239,10 +236,16 @@ class _LoginPageState extends State<LoginPage>{
       if(userRequest.statusCode == 200){
        //Saving user information in sharedPreferences
         var user = jsonDecode(userRequest.body);
+        print(userRequest.body);
         String name = user['name'];
         String email = user['email'];
         localStorage.setString('name', name);
         localStorage.setString('email', email);
+        localStorage.setString('lastname', user['lastname']);
+        localStorage.setString('phone', user['phone']);
+        localStorage.setInt('role_id', user['role_id']);
+        localStorage.setInt('id', user['id']);
+        log("user ok");
       }
       else{
         ScaffoldMessenger.of(context).showSnackBar(
@@ -265,22 +268,6 @@ class _LoginPageState extends State<LoginPage>{
         const SnackBar(content: Text("Paramètres incorrectes")),
       );
     }
-    /*var res = await Network().authData(data, '/login');
-    var body = json.decode(res.body);
-    if(body['success']){
-      SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.setString('token', json.encode(body['token']));
-      localStorage.setString('user', json.encode(body['user']));
-      Navigator.push(
-        context,
-         MaterialPageRoute(
-            builder: (context) => ProfilePage()
-        ),
-      );
-    }else{
-      //_showMsg(body['message']);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => RegistrationPage()));
-    }*/
 
     setState(() {
       _isLoading = false;

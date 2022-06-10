@@ -5,6 +5,11 @@ import 'package:fast_travel/common/theme_helper.dart';
 import 'package:fast_travel/pages/widgets/header_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'dart:developer';
+import 'dart:convert';
+import 'login_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'profile_page.dart';
 
@@ -20,6 +25,20 @@ class _RegistrationPageState extends State<RegistrationPage>{
   final _formKey = GlobalKey<FormState>();
   bool checkedValue = false;
   bool checkboxValue = false;
+  dynamic name;
+  dynamic lastname;
+  dynamic email;
+  dynamic password;
+  dynamic password_confirmation;
+  dynamic phone;
+  // Initial Selected Value
+  String role_id = 'Chauffeur';
+
+  // List of items in our dropdown menu
+  var items = [
+    'Chauffeur',
+    'Passager',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +99,18 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         SizedBox(height: 30,),
                         Container(
                           child: TextFormField(
+                          // The validator receives the text that the user has entered.
+                          validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Entrez votre prénom";
+                          }
+                          else{
+                            lastname = value;
+                            log(value);
+                            return null;
+                          }
+
+                          },
                             decoration: ThemeHelper().textInputDecoration('Prénom', 'Entrez votre prénom'),
                           ),
                           decoration: ThemeHelper().inputBoxDecorationShaddow(),
@@ -87,6 +118,15 @@ class _RegistrationPageState extends State<RegistrationPage>{
                         SizedBox(height: 30,),
                         Container(
                           child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Entrez votre nom";
+                              }
+                              else{
+                                name = value;
+                                return null;
+                              }
+                            },
                             decoration: ThemeHelper().textInputDecoration('Nom','Entrez votre nom'),
                           ),
                           decoration: ThemeHelper().inputBoxDecorationShaddow(),
@@ -97,10 +137,16 @@ class _RegistrationPageState extends State<RegistrationPage>{
                             decoration: ThemeHelper().textInputDecoration("Adresse E-mail", "Entrer votre Email"),
                             keyboardType: TextInputType.emailAddress,
                             validator: (val) {
-                              if(!(val!.isEmpty) && !RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$").hasMatch(val)){
+                              if (val == null || val.isEmpty) {
                                 return "Entrez une adresse e-mail valide";
                               }
-                              return null;
+                              if(!RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$").hasMatch(val)){
+                                return "Entrez une adresse e-mail valide";
+                              }
+                              else{
+                                email = val;
+                                return null;
+                              }
                             },
                           ),
                           decoration: ThemeHelper().inputBoxDecorationShaddow(),
@@ -112,11 +158,19 @@ class _RegistrationPageState extends State<RegistrationPage>{
                                 "Numéro de téléphone",
                                 "Entrez votre numéro de mobile"),
                             keyboardType: TextInputType.phone,
-                            validator: (val) {
-                              if(!(val!.isEmpty) && !RegExp(r"^(\d+)*$").hasMatch(val)){
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
                                 return "Entrez un numéro de téléphone valide";
                               }
-                              return null;
+                              if(!RegExp(r"^(\d+)*$").hasMatch(value)){
+                                return "Entrez un numéro de téléphone valide";
+                              }
+
+                              else{
+                                phone = value;
+                                return null;
+                              }
+
                             },
                           ),
                           decoration: ThemeHelper().inputBoxDecorationShaddow(),
@@ -127,15 +181,51 @@ class _RegistrationPageState extends State<RegistrationPage>{
                             obscureText: true,
                             decoration: ThemeHelper().textInputDecoration(
                                 "Mot de passe*", "Entrez votre mot de passe"),
-                            validator: (val) {
-                              if (val!.isEmpty) {
+                            validator: (value) {
+                              if (value!.isEmpty) {
                                 return "S'il vous plait entrez votre mot de passe";
                               }
-                              return null;
+                              else{
+                                password = value;
+                                return null;
+                              }
                             },
                           ),
                           decoration: ThemeHelper().inputBoxDecorationShaddow(),
                         ),
+
+                        SizedBox(height: 20.0),
+                        Container(
+                          child:DropdownButton(
+
+                            // Initial Value
+
+                            value: role_id,
+                            isExpanded: true,
+
+                            // Down Arrow Icon
+                            icon: const Icon(Icons.keyboard_arrow_down),
+
+                            // Array list of items
+                            items: items.map((String items) {
+                              return DropdownMenuItem(
+                                value: items,
+                                child: Text(items),
+                              );
+                            }).toList(),
+                            // After selecting the desired option,it will
+                            // change button value to selected value
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                role_id = newValue!;
+                              });
+                            },
+                            hint: Text('Type de compte'),
+                          ),
+
+                          decoration: ThemeHelper().inputBoxDecorationShaddow(),
+                        ),
+
                         SizedBox(height: 15.0),
                         FormField<bool>(
                           builder: (state) {
@@ -151,7 +241,7 @@ class _RegistrationPageState extends State<RegistrationPage>{
                                             state.didChange(value);
                                           });
                                         }),
-                                    Text("J'accepte tous les termes et conditions.", style: TextStyle(color: Colors.grey),),
+                                    Text("J'accepte", style: TextStyle(color: Colors.grey),),
                                   ],
                                 ),
                                 Container(
@@ -190,13 +280,23 @@ class _RegistrationPageState extends State<RegistrationPage>{
                               ),
                             ),
                             onPressed: () {
+
                               if (_formKey.currentState!.validate()) {
-                                Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                        builder: (context) => ProfilePage()
-                                    ),
-                                        (Route<dynamic> route) => false
+                                log(name);
+                                log(lastname);
+                                log(phone);
+                                log(password);
+                                log(email);
+                                log(role_id);
+                                // If the form is valid, display a snackbar. In the real world,
+                                // you'd often call a server or save the information in a database.
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Traitement en cours')),
                                 );
+                                //We can now call REST API to check if credentials match records
+                                //After successful login we will redirect to profile page. Let's create profile page now
+                                //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                                _register();
                               }
                             },
                           ),
@@ -278,4 +378,87 @@ class _RegistrationPageState extends State<RegistrationPage>{
     );
   }
 
+  void _register() async{
+    print("Here in _register function");
+    //var response = API().getToken();
+
+    var data = {
+      'name': name,
+      'lastname': lastname,
+      'email': email,
+      'phone': phone,
+      'password': password,
+      'password_confirmation': password,
+      'role_id': role_id,
+    };
+
+    final response = await http.post(
+      Uri.parse('http://fastravel.stillforce.tech/api/register'),
+      headers: {
+        'Content-type' : 'application/json',
+        'Accept' : 'application/json',
+      },
+      body: jsonEncode(data),
+    );
+    //print(response);
+    if (response.statusCode == 200) {
+      // If the server did return a 200 CREATED response,
+      // then parse the JSON.
+      var jsonData = jsonDecode(response.body);
+
+      //Launching login form
+
+      ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+          content: new Text("Compte créée avec succès")
+      )
+
+      );
+      //Now redirecting the user to the profil page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => LoginPage()
+        ),
+      );
+    }
+
+    else if(response.statusCode == 412) {
+      // If the server did not return a 200 CREATED response,
+      // then throw an exception.
+      //throw Exception('Error : Failed to create token.');
+      print(response.statusCode);
+      print(response.body);
+      var jsonData = jsonDecode(response.body);
+      String message = jsonData['message'];
+      dynamic data = jsonData['data'];
+
+      if(data['email']!= null){
+        ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+            content: new Text("Email déjà utilisé")
+        )
+
+        );
+      }
+      if(data['password']!= null){
+        ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+            content: new Text("Mot de passe doit contenir au moins 8 caractères")
+        )
+
+        );
+      }
+
+    }
+
+    else {
+      // If the server did not return a 200 CREATED response,
+      // then throw an exception.
+      //throw Exception('Error : Failed to create token.');
+      print(response.statusCode);
+      print(response.body);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Une erreur est survenue, veuillez réessayez plutard")),
+      );
+    }
+
+  }
 }

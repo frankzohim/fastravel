@@ -9,6 +9,7 @@ import 'dart:developer';
 import 'forgot_password_page.dart';
 import 'forgot_password_verification_page.dart';
 import 'registration_page.dart';
+import 'edit_profil_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget{
@@ -25,7 +26,11 @@ class _ProfilePageState extends State<ProfilePage>{
   double _drawerFontSize = 17;
   dynamic token;
   dynamic name = "";
+  dynamic lastname = "";
   dynamic email = "";
+  dynamic phone = "";
+  dynamic role_id = "";
+  dynamic role = "";
 
 
   Future _retrieveData() async {
@@ -33,7 +38,16 @@ class _ProfilePageState extends State<ProfilePage>{
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     token = localStorage.getString('token');
     name = localStorage.getString('name');
+    lastname = localStorage.getString('lastname');
     email = localStorage.getString('email');
+    phone = localStorage.getString('phone');
+    role_id = localStorage.getInt('role_id');
+    if(role_id==1)
+      role = "Admin";
+    else if(role_id==2)
+      role = "Chauffeur";
+    else if(role_id==3)
+      role = "Passager";
     return localStorage;
   }
 
@@ -124,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage>{
                     ),
                     ListTile(
                       leading: Icon(Icons.login_rounded,size: _drawerIconSize,color: Theme.of(context).accentColor),
-                      title: Text('Rechercher un voyage', style: TextStyle(fontSize: _drawerFontSize, color: Theme.of(context).accentColor),
+                      title: Text('Connexion', style: TextStyle(fontSize: _drawerFontSize, color: Theme.of(context).accentColor),
                       ),
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPage()),);
@@ -136,6 +150,14 @@ class _ProfilePageState extends State<ProfilePage>{
                       title: Text('Inscription',style: TextStyle(fontSize: _drawerFontSize,color: Theme.of(context).accentColor),),
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => RegistrationPage()),);
+                      },
+                    ),
+                    Divider(color: Theme.of(context).primaryColor, height: 1,),
+                    ListTile(
+                      leading: Icon(Icons.person_add_alt_1, size: _drawerIconSize,color: Theme.of(context).accentColor),
+                      title: Text('Edition Profil',style: TextStyle(fontSize: _drawerFontSize,color: Theme.of(context).accentColor),),
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => EditionPage()),);
                       },
                     ),
                     Divider(color: Theme.of(context).primaryColor, height: 1,),
@@ -191,7 +213,7 @@ class _ProfilePageState extends State<ProfilePage>{
                         SizedBox(height: 20,),
                         Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
                         SizedBox(height: 20,),
-                        Text('Passager', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                        Text(role, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
                         SizedBox(height: 10,),
                         Container(
                           padding: EdgeInsets.all(10),
@@ -236,7 +258,7 @@ class _ProfilePageState extends State<ProfilePage>{
                                               ListTile(
                                                 leading: Icon(Icons.phone),
                                                 title: Text("Phone"),
-                                                subtitle: Text("+237-694-77-9579"),
+                                                subtitle: Text(phone),
                                               ),
                                               ListTile(
                                                 leading: Icon(Icons.person),
