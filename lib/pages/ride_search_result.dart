@@ -13,15 +13,15 @@ import 'edit_profil_page.dart';
 import 'search_ride.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfilePage extends StatefulWidget{
+class RideSearchResultPage extends StatefulWidget{
 
   @override
   State<StatefulWidget> createState() {
-    return _ProfilePageState();
+    return _RideSearchResultState();
   }
 }
 
-class _ProfilePageState extends State<ProfilePage>{
+class _RideSearchResultState extends State<RideSearchResultPage>{
 
   double  _drawerIconSize = 24;
   double _drawerFontSize = 17;
@@ -57,7 +57,7 @@ class _ProfilePageState extends State<ProfilePage>{
   Widget build(BuildContext context) {
 
     //Using a FutureBuilder to wait for the async function _retrieveData() to be ready
-     return FutureBuilder(
+    return FutureBuilder(
       future: _retrieveData(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
@@ -233,7 +233,7 @@ class _ProfilePageState extends State<ProfilePage>{
                                 padding: const EdgeInsets.only(left: 8.0, bottom: 4.0),
                                 alignment: Alignment.topLeft,
                                 child: Text(
-                                  "Informations Utilisateur",
+                                  "Résultat de recherche",
                                   style: TextStyle(
                                     color: Colors.black87,
                                     fontWeight: FontWeight.w500,
@@ -257,25 +257,69 @@ class _ProfilePageState extends State<ProfilePage>{
                                                 contentPadding: EdgeInsets.symmetric(
                                                     horizontal: 12, vertical: 4),
                                                 leading: Icon(Icons.my_location),
-                                                title: Text("Localisation"),
-                                                subtitle: Text("Douala, Cameroun"),
+                                                title: Text("Trajet"),
+                                                subtitle: Text("Douala-Yaoundé"),
                                               ),
                                               ListTile(
-                                                leading: Icon(Icons.email),
-                                                title: Text("Email"),
-                                                subtitle: Text(email),
+                                                leading: Icon(Icons.date_range_outlined),
+                                                title: Text("Date"),
+                                                subtitle: Text('09/09/2022'),
                                               ),
                                               ListTile(
-                                                leading: Icon(Icons.phone),
-                                                title: Text("Phone"),
-                                                subtitle: Text(phone),
+                                                leading: Icon(Icons.price_change_outlined),
+                                                title: Text("Prix"),
+                                                subtitle: Text('4000'),
                                               ),
                                               ListTile(
                                                 leading: Icon(Icons.person),
-                                                title: Text("A Propos"),
+                                                title: Text("Places"),
                                                 subtitle: Text(
-                                                    "Ceci est un lien à propos de moi et vous pouvez savoir qui je suis dans cette section."),
+                                                    "4"),
                                               ),
+                                            ],
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+
+                              Card(
+                                child: Container(
+                                  alignment: Alignment.topLeft,
+                                  padding: EdgeInsets.all(15),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Column(
+                                        children: <Widget>[
+                                          ...ListTile.divideTiles(
+                                            color: Colors.grey,
+                                            tiles: [
+                                              ListTile(
+                                                contentPadding: EdgeInsets.symmetric(
+                                                    horizontal: 12, vertical: 4),
+                                                leading: Icon(Icons.my_location),
+                                                title: Text("Trajet"),
+                                                subtitle: Text("Douala-Limbé"),
+                                              ),
+                                              ListTile(
+                                                leading: Icon(Icons.date_range_outlined),
+                                                title: Text("Date"),
+                                                subtitle: Text('02/09/2022'),
+                                              ),
+                                              ListTile(
+                                                leading: Icon(Icons.price_change_outlined),
+                                                title: Text("Prix"),
+                                                subtitle: Text('3000'),
+                                              ),
+                                              ListTile(
+                                                leading: Icon(Icons.person),
+                                                title: Text("Places"),
+                                                subtitle: Text(
+                                                    "2"),
+                                              ),
+
                                             ],
                                           ),
                                         ],
